@@ -332,7 +332,7 @@
 /* Join button */
 .contact-button {
   position: absolute;
-  bottom: -245px;
+  bottom: -255px;
   left: 50%;
   transform: translateX(-50%);
   background: none;
