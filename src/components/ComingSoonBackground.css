@@ -371,14 +371,14 @@
 /* =========================  RESPONSIVE  ========================= */
 @media (max-width: 1200px) {
   .coming-soon-title {
-    font-size: 5rem;
+    font-size: 3.5rem;
   }
   .hero-subtitle {
     font-size: 1.6rem;
   }
   .torch-left,
   .torch-right {
-    width: 300px;
+    width: 230px;
     z-index: 5;
   }
   .yellow-border-decoration img {
@@ -407,7 +407,7 @@
 /* Portrait */
 @media (min-width: 834px) and (max-width: 1080px) and (orientation: portrait) {
   .coming-soon-background {
-    height: 150svh; /* increased height to show more bg */
+    height: auto; /* increased height to show more bg */
     min-height: 0;
     overflow: hidden; /* <-- important: hides the "bg behind" */
   }
@@ -416,16 +416,14 @@
     background-position: top center;
   }
   .hero-section {
-    height: 88svh;
+    height: auto;
     padding-top: 18svh;
   }
   .game-content-section {
-    height: 60svh;
-    margin-top: -60svh;
+    height: auto;
   }
   .contact-us-section {
-    height: 56svh;
-    margin-top: -20svh;
+    height: auto;
   }
   .bg-element-1 {
     top: 78%;
@@ -437,7 +435,7 @@
 /* Landscape */
 @media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
   .coming-soon-background {
-    height: 150svh; /* increased height to show more bg */
+    height: auto; /* increased height to show more bg */
     min-height: 0;
     overflow: hidden;
   }
@@ -446,16 +444,13 @@
     background-position: top center;
   }
   .hero-section {
-    height: 84svh;
-    padding-top: 16svh;
+    height:  auto;
   }
   .game-content-section {
-    height: 56svh;
-    margin-top: -58svh;
+    height: auto;
   }
   .contact-us-section {
-    height: 52svh;
-    margin-top: -18svh;
+    height: auto;
   }
   .bg-element-1 {
     top: 80%;
@@ -517,10 +512,9 @@
     padding: 1rem;
     padding-top: 18vh;
     height: auto;
-    min-height: 80vh;
   }
   .coming-soon-title {
-    font-size: 2rem;
+    font-size: 3rem;
     letter-spacing: 1px;
     margin: 0 0 0.8rem 0;
   }
@@ -530,12 +524,12 @@
   }
   .torch-left,
   .torch-right {
-    width: 100px;
-    top: 15%;
+    width: 170px;
+    top: 30%;
     z-index: 5;
   }
   .torch-left {
-    left: 3%;
+    left: 2%;
   }
   .torch-right {
     right: 3%;
@@ -547,14 +541,12 @@
     max-width: 180px;
   }
   .game-content-section {
-    margin-top: -55vh;
     padding: 1rem;
     height: auto;
     min-height: 50vh;
   }
   .game-content-container {
     width: 95%;
-    height: 50vh;
     max-width: none;
   }
   .contact-us-section {
@@ -621,9 +613,8 @@
   }
   .hero-section {
     padding: 0.5rem;
-    padding-top: 24vh;
+    padding-top: 10vh;
     height: auto;
-    min-height: 70vh;
   }
   .coming-soon-title {
     font-size: 1.6rem;
@@ -637,7 +628,7 @@
   .torch-left,
   .torch-right {
     width: 70px;
-    top: 12%;
+    top: 25%;
   }
   .torch-left {
     left: 2%;
@@ -652,14 +643,12 @@
     max-width: 130px;
   }
   .game-content-section {
-    margin-top: -50vh;
     padding: 0.5rem;
     height: auto;
     min-height: 40vh;
   }
   .game-content-container {
     width: 95%;
-    height: 40vh;
   }
   .contact-us-section {
     margin-top: 5vh;
