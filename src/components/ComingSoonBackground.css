@@ -20,8 +20,8 @@
 .coming-soon-background {
   position: relative;
   width: 100vw;
-  min-height: 270vh; /* desktop stack height */
-  overflow-x: hidden;
+  height: auto; /* desktop stack height */
+  overflow: hidden;
   z-index: 1;
 }
 
@@ -63,7 +63,6 @@
 /* =========================  Sections  ========================= */
 .hero-section {
   position: relative;
-  height: 100vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -136,14 +135,13 @@
 
 .game-content-section {
   position: relative;
-  height: 100vh;
+  height: auto;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   z-index: 10;
   padding: 2rem;
   padding-top: 0;
-  margin-top: -50vh;
 }
 .game-content-container {
   width: 90%;
@@ -156,14 +154,13 @@
 
 .contact-us-section {
   position: relative;
-  height: 100vh;
+  height: auto;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   z-index: 10;
   padding: 2rem;
   padding-top: 0vh;
-  margin-top: -22vh;
 }
 
 .bg-element-1 {
