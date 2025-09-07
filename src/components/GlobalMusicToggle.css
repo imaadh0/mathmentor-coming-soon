@@ -1,0 +1,401 @@
+/* Global Music Toggle Button */
+.global-music-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(145deg, #3a251a 0%, #2a1810 100%);
+  border: 2px solid #fdcb3f;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(253, 203, 63, 0.2);
+  color: #fdcb3f;
+  font-family: "Clash", sans-serif;
+}
+
+.global-music-toggle::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #fdcb3f, #b8941f, #fdcb3f);
+  border-radius: 50%;
+  z-index: -1;
+  opacity: 0.6;
+  animation: globalBorderGlow 3s linear infinite;
+}
+
+.global-music-toggle:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(253, 203, 63, 0.4);
+  border-color: #ffffff;
+}
+
+.global-music-toggle:active {
+  transform: translateY(0) scale(1);
+}
+
+.global-music-toggle.enabled {
+  color: #22c55e;
+  border-color: #22c55e;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.global-music-toggle.enabled::before {
+  background: linear-gradient(45deg, #22c55e, #16a34a, #22c55e);
+}
+
+.global-music-toggle.enabled:hover {
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(34, 197, 94, 0.5);
+  border-color: #4ade80;
+}
+
+.global-music-toggle.disabled {
+  color: #6b7280;
+  border-color: #6b7280;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(107, 114, 128, 0.2);
+}
+
+.global-music-toggle.disabled::before {
+  background: linear-gradient(45deg, #6b7280, #4b5563, #6b7280);
+}
+
+.global-music-toggle.disabled:hover {
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(107, 114, 128, 0.3);
+  border-color: #9ca3af;
+}
+
+/* Global Audio Popup Styling */
+.global-audio-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.global-audio-popup.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.global-audio-popup-content {
+  background: linear-gradient(145deg, #3a251a 0%, #2a1810 100%);
+  border: 3px solid #fdcb3f;
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 500px;
+  margin: 1rem;
+  text-align: center;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(253, 203, 63, 0.3),
+    inset 0 1px 0 rgba(253, 203, 63, 0.2);
+  position: relative;
+  transform: scale(0) rotate(-10deg);
+  animation: globalMedievalEntrance 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.global-audio-popup.show .global-audio-popup-content {
+  animation: globalMedievalEntrance 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.global-audio-popup-content::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #fdcb3f, #b8941f, #fdcb3f, #b8941f);
+  border-radius: 20px;
+  z-index: -1;
+  opacity: 0.6;
+  animation: globalBorderGlow 2s linear infinite;
+}
+
+.global-audio-popup-header {
+  margin-bottom: 1.5rem;
+}
+
+.global-audio-title {
+  font-family: "Clash", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fdcb3f;
+  margin-bottom: 0.8rem;
+  text-shadow: 2px 2px 0 #4b3d15;
+  animation: globalTitlePulse 2s ease-in-out infinite alternate;
+}
+
+.global-audio-subtitle {
+  font-family: "Clash", sans-serif;
+  font-size: 1rem;
+  color: #b8941f;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.global-audio-question {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(253, 203, 63, 0.1);
+  border: 1px solid rgba(253, 203, 63, 0.3);
+  border-radius: 12px;
+}
+
+.global-medieval-text {
+  font-family: "Clash", sans-serif;
+  font-size: 1.1rem;
+  color: #fdcb3f;
+  line-height: 1.6;
+  margin: 0;
+  text-shadow: 1px 1px 0 #2a1810;
+}
+
+.global-audio-buttons {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.global-audio-btn {
+  background: linear-gradient(145deg, #4a3426 0%, #3a251a 100%);
+  border: 2px solid #b8941f;
+  border-radius: 15px;
+  padding: 1rem 1.5rem;
+  font-family: "Clash", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 160px;
+  position: relative;
+  overflow: hidden;
+}
+
+.global-audio-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(253, 203, 63, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.global-audio-btn:hover::before {
+  left: 100%;
+}
+
+.global-audio-btn:hover {
+  transform: translateY(-3px);
+  border-color: #fdcb3f;
+  box-shadow: 
+    0 8px 25px rgba(253, 203, 63, 0.3),
+    inset 0 1px 0 rgba(253, 203, 63, 0.2);
+  background: linear-gradient(145deg, #5a4226 0%, #4a3426 100%);
+}
+
+.global-yes-btn:hover {
+  border-color: #22c55e;
+  box-shadow: 
+    0 8px 25px rgba(34, 197, 94, 0.3),
+    inset 0 1px 0 rgba(34, 197, 94, 0.2);
+}
+
+.global-no-btn:hover {
+  border-color: #ef4444;
+  box-shadow: 
+    0 8px 25px rgba(239, 68, 68, 0.3),
+    inset 0 1px 0 rgba(239, 68, 68, 0.2);
+}
+
+.global-btn-icon {
+  font-size: 2rem;
+  display: block;
+}
+
+.global-btn-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fdcb3f;
+  text-shadow: 1px 1px 0 #2a1810;
+}
+
+.global-btn-subtext {
+  font-size: 0.9rem;
+  color: #b8941f;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.global-audio-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  background: rgba(184, 148, 31, 0.1);
+  border: 1px solid rgba(184, 148, 31, 0.3);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #b8941f;
+  margin-top: 1rem;
+}
+
+.global-note-icon {
+  font-size: 1rem;
+}
+
+.global-note-text {
+  font-family: "Clash", sans-serif;
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Animations */
+@keyframes globalBorderGlow {
+  0%, 100% {
+    background: linear-gradient(45deg, #fdcb3f, #b8941f, #fdcb3f, #b8941f);
+  }
+  25% {
+    background: linear-gradient(45deg, #b8941f, #fdcb3f, #b8941f, #fdcb3f);
+  }
+  50% {
+    background: linear-gradient(45deg, #fdcb3f, #b8941f, #fdcb3f, #b8941f);
+  }
+  75% {
+    background: linear-gradient(45deg, #b8941f, #fdcb3f, #b8941f, #fdcb3f);
+  }
+}
+
+@keyframes globalMedievalEntrance {
+  0% {
+    transform: scale(0) rotate(-10deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes globalTitlePulse {
+  0% {
+    transform: scale(1);
+    text-shadow: 2px 2px 0 #4b3d15;
+  }
+  100% {
+    transform: scale(1.02);
+    text-shadow: 2px 2px 0 #4b3d15, 0 0 15px rgba(253, 203, 63, 0.5);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .global-music-toggle {
+    width: 50px;
+    height: 50px;
+    top: 15px;
+    right: 15px;
+  }
+  
+  .global-audio-popup-content {
+    padding: 1.5rem;
+    margin: 0.5rem;
+    max-width: 350px;
+  }
+  
+  .global-audio-title {
+    font-size: 1.4rem;
+  }
+  
+  .global-audio-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .global-medieval-text {
+    font-size: 1rem;
+  }
+  
+  .global-audio-buttons {
+    flex-direction: column;
+    gap: 0.8rem;
+    margin: 1.5rem 0;
+  }
+  
+  .global-audio-btn {
+    min-width: 140px;
+    padding: 0.8rem 1rem;
+  }
+  
+  .global-btn-icon {
+    font-size: 1.5rem;
+  }
+  
+  .global-btn-text {
+    font-size: 1rem;
+  }
+  
+  .global-btn-subtext {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .global-music-toggle {
+    width: 45px;
+    height: 45px;
+    top: 10px;
+    right: 10px;
+  }
+  
+  .global-audio-note {
+    padding: 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  .global-note-text {
+    text-align: center;
+    line-height: 1.4;
+  }
+}

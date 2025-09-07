@@ -145,21 +145,13 @@
   padding-top: 0;
   margin-top: -50vh;
 }
-.game-content-placeholder {
+.game-content-container {
   width: 90%;
   max-width: 1000px;
   height: 75%;
-  background-color: #d9d9d9;
-  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-.game-content-placeholder p {
-  font-size: 1.5rem;
-  color: #333;
-  margin: 0;
 }
 
 .contact-us-section {
@@ -309,6 +301,76 @@
   transform: scale(1.05);
 }
 
+/* Form Status Messages */
+.form-status {
+  position: absolute;
+  bottom: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-family: "Clash", sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  text-align: center;
+  max-width: 400px;
+  z-index: 15;
+  animation: slideIn 0.3s ease-out;
+}
+
+.form-status.fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+.form-status.success {
+  background-color: #4ade80;
+  color: #166534;
+  border: 2px solid #16a34a;
+}
+
+.form-status.error {
+  background-color: #f87171;
+  color: #7f1d1d;
+  border: 2px solid #dc2626;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+}
+
+/* Disabled state for form inputs */
+.form-input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.contact-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.contact-button:disabled:hover img {
+  transform: none;
+}
+
 /* =========================  RESPONSIVE  ========================= */
 @media (max-width: 1200px) {
   .coming-soon-title {
@@ -325,7 +387,7 @@
   .yellow-border-decoration img {
     max-width: 400px;
   }
-  .game-content-placeholder {
+  .game-content-container {
     height: 70%;
   }
   .contact-title {
@@ -493,7 +555,7 @@
     height: auto;
     min-height: 50vh;
   }
-  .game-content-placeholder {
+  .game-content-container {
     width: 95%;
     height: 50vh;
     max-width: none;
@@ -598,12 +660,9 @@
     height: auto;
     min-height: 40vh;
   }
-  .game-content-placeholder {
+  .game-content-container {
     width: 95%;
     height: 40vh;
-  }
-  .game-content-placeholder p {
-    font-size: 1rem;
   }
   .contact-us-section {
     margin-top: 5vh;
