@@ -1,7 +1,6 @@
 /* Math Quiz Component Styling */
 .math-quiz {
   width: 100%;
-  min-height: 100vh;
   height: auto;
   background: linear-gradient(135deg, #2a1810 0%, #1a0f08 100%);
   border: 3px solid #fdcb3f;
