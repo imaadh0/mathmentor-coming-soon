@@ -6,9 +6,11 @@ const GlobalMusicToggle: React.FC = () => {
   const [musicEnabled, setMusicEnabled] = useState(false);
   const [showAudioPopup, setShowAudioPopup] = useState(true);
   const [audioInitialized, setAudioInitialized] = useState(false);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   
   // Audio refs
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
+  const musicTracks = ['/audio/music1.mp3', '/audio/music2.mp3'];
 
   // Global function to stop all audio instances (in case of duplicates)
   const stopAllAudio = () => {
@@ -33,20 +35,24 @@ const GlobalMusicToggle: React.FC = () => {
           backgroundMusicRef.current = null;
         }
         
-        backgroundMusicRef.current = new Audio('/audio/music.mp3');
+        backgroundMusicRef.current = new Audio(musicTracks[currentTrackIndex]);
         
         // Configure background music
         if (backgroundMusicRef.current) {
-          backgroundMusicRef.current.loop = true;
+          backgroundMusicRef.current.loop = false; // Disable loop since we'll manually switch tracks
           backgroundMusicRef.current.volume = 0.3;
           backgroundMusicRef.current.preload = 'auto';
           
-          // Add event listeners for debugging
+          // Add event listeners for debugging and track switching
           backgroundMusicRef.current.addEventListener('canplay', () => {
             console.log('Background music can play');
           });
           backgroundMusicRef.current.addEventListener('error', (e) => {
             console.error('Background music error:', e);
+          });
+          backgroundMusicRef.current.addEventListener('ended', () => {
+            console.log('Track ended, switching to next track');
+            switchToNextTrack();
           });
         }
         
@@ -66,6 +72,40 @@ const GlobalMusicToggle: React.FC = () => {
       }
     };
   }, []);
+
+  // Reinitialize audio when track index changes (for initial setup)
+  useEffect(() => {
+    if (audioInitialized && backgroundMusicRef.current) {
+      // Update the audio source when track index changes
+      backgroundMusicRef.current.src = musicTracks[currentTrackIndex];
+      backgroundMusicRef.current.load();
+      console.log(`Audio source updated to: ${musicTracks[currentTrackIndex]}`);
+    }
+  }, [currentTrackIndex, audioInitialized, musicTracks]);
+
+  // Function to switch to the next track
+  const switchToNextTrack = async () => {
+    const nextTrackIndex = (currentTrackIndex + 1) % musicTracks.length;
+    setCurrentTrackIndex(nextTrackIndex);
+    
+    if (backgroundMusicRef.current && musicEnabled) {
+      try {
+        // Pause current track
+        backgroundMusicRef.current.pause();
+        
+        // Update the source to the next track
+        backgroundMusicRef.current.src = musicTracks[nextTrackIndex];
+        backgroundMusicRef.current.load(); // Reload the audio element
+        
+        console.log(`Switched to track ${nextTrackIndex + 1}: ${musicTracks[nextTrackIndex]}`);
+        
+        // Play the new track
+        await backgroundMusicRef.current.play();
+      } catch (error) {
+        console.error('Failed to switch track:', error);
+      }
+    }
+  };
 
   // Audio control functions
   const playBackgroundMusic = async () => {
