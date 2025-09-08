@@ -716,7 +716,6 @@ const MathQuiz: React.FC = () => {
         }}
       >
         <div className="xp-gain-content">
-          <div className="xp-icon">✨</div>
           <div className="xp-text">+{animationState.xpGained} XP</div>
           <div className="xp-subtext">Great job!</div>
         </div>
