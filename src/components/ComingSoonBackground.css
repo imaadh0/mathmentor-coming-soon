@@ -461,33 +461,32 @@
   }
 }
 
-/* ---------- iPad Air responsive adjustments ---------- */
-@media (min-width: 768px) and (max-width: 900px) and (min-height: 1024px) and (max-height: 1366px) {
+/* ---------- iPad Air specific adjustments ---------- */
+@media (min-width: 820px) and (max-width: 820px) and (min-height: 1180px) and (max-height: 1180px) {
   .coming-soon-background {
-    height: auto; 
-    min-height: 100vh; 
-    overflow: visible; 
+    height: 160vh; 
+    min-height: 0;
+    overflow: hidden;
   }
   .bg-image,
   .dark-overlay {
     background-position: top center;
   }
   .hero-section {
-    height: 45svh; 
-    padding-top: 5svh;
+    height: 88svh;
+    padding-top: 18svh;
   }
   .game-content-section {
-    height: 35svh; 
-    margin-top: -22svh; 
-    padding-top: 0;
+    height: 60svh;
+    margin-top: -50svh;
   }
   .contact-us-section {
-    height: 35svh; 
-    margin-top: 25svh; 
+    height: 56svh;
+    margin-top: -20svh;
   }
   .bg-element-1 {
-    top: 105%;
-    right: 12%;
+    top: 78%;
+    right: 15%; 
     max-width: 22%;
   }
 }
