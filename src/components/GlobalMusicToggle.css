@@ -100,7 +100,7 @@
   z-index: 2000;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-out;
 }
 
 .global-audio-popup.show {
@@ -121,12 +121,14 @@
     0 0 40px rgba(253, 203, 63, 0.3),
     inset 0 1px 0 rgba(253, 203, 63, 0.2);
   position: relative;
-  transform: scale(0) rotate(-10deg);
-  animation: globalMedievalEntrance 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  transform: scale(0.8) translateY(20px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .global-audio-popup.show .global-audio-popup-content {
-  animation: globalMedievalEntrance 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  transform: scale(1) translateY(0);
+  opacity: 1;
 }
 
 .global-audio-popup-content::before {
@@ -155,14 +157,19 @@
   margin-bottom: 0.8rem;
   text-shadow: 2px 2px 0 #4b3d15;
   animation: globalTitlePulse 2s ease-in-out infinite alternate;
+  background: linear-gradient(145deg, #3a251a 0%, #2a1810 100%);
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(253, 203, 63, 0.3);
 }
 
 .global-audio-subtitle {
   font-family: "Clash", sans-serif;
   font-size: 1rem;
-  color: #b8941f;
+  color: #f4d03f;
   font-weight: 500;
   font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 .global-audio-question {
@@ -176,10 +183,11 @@
 .global-medieval-text {
   font-family: "Clash", sans-serif;
   font-size: 1.1rem;
-  color: #fdcb3f;
+  color: #f4d03f;
   line-height: 1.6;
   margin: 0;
-  text-shadow: 1px 1px 0 #2a1810;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-weight: 500;
 }
 
 .global-audio-buttons {
@@ -197,7 +205,7 @@
   padding: 1rem 1.5rem;
   font-family: "Clash", sans-serif;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-out;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -215,7 +223,7 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(253, 203, 63, 0.2), transparent);
-  transition: left 0.5s ease;
+  transition: left 0.3s ease;
 }
 
 .global-audio-btn:hover::before {
@@ -248,20 +256,24 @@
 .global-btn-icon {
   font-size: 2rem;
   display: block;
+  color: #f4d03f;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.8));
 }
 
 .global-btn-text {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #fdcb3f;
-  text-shadow: 1px 1px 0 #2a1810;
+  color: #f4d03f;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .global-btn-subtext {
   font-size: 0.9rem;
-  color: #b8941f;
+  color: #f4d03f;
   font-weight: 400;
   font-style: italic;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  opacity: 0.9;
 }
 
 .global-audio-note {
@@ -270,12 +282,13 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.8rem;
-  background: rgba(184, 148, 31, 0.1);
-  border: 1px solid rgba(184, 148, 31, 0.3);
+  background: rgba(253, 203, 63, 0.15);
+  border: 1px solid rgba(253, 203, 63, 0.4);
   border-radius: 8px;
   font-size: 0.9rem;
-  color: #b8941f;
+  color: #f4d03f;
   margin-top: 1rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .global-note-icon {
@@ -284,8 +297,10 @@
 
 .global-note-text {
   font-family: "Clash", sans-serif;
-  font-weight: 400;
+  font-weight: 500;
   text-align: center;
+  color: #f4d03f;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 /* Animations */
@@ -304,20 +319,6 @@
   }
 }
 
-@keyframes globalMedievalEntrance {
-  0% {
-    transform: scale(0) rotate(-10deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.1) rotate(5deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
 
 @keyframes globalTitlePulse {
   0% {

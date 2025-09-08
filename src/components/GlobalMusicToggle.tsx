@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Music, VolumeX } from "lucide-react";
+import { Music, VolumeX, Play } from "lucide-react";
 import "./GlobalMusicToggle.css";
 
 const GlobalMusicToggle: React.FC = () => {
@@ -177,7 +177,7 @@ const GlobalMusicToggle: React.FC = () => {
       <div className={`global-audio-popup ${showAudioPopup ? 'show' : ''}`}>
         <div className="global-audio-popup-content">
           <div className="global-audio-popup-header">
-            <h2 className="global-audio-title">🎵 Hark, Noble Adventurer! 🎵</h2>
+            <h2 className="global-audio-title">Hark, Noble Adventurer!</h2>
             <div className="global-audio-subtitle">
               Dost thou desire the mystical melodies to accompany thy mathematical quest?
             </div>
@@ -195,7 +195,7 @@ const GlobalMusicToggle: React.FC = () => {
               className="global-audio-btn global-yes-btn"
               onClick={() => handleAudioChoice(true)}
             >
-              <span className="global-btn-icon">🎼</span>
+              <span className="global-btn-icon"><Play size={24} /></span>
               <span className="global-btn-text">Aye, Play Music!</span>
               <span className="global-btn-subtext">Let the bards sing</span>
             </button>
@@ -204,7 +204,7 @@ const GlobalMusicToggle: React.FC = () => {
               className="global-audio-btn global-no-btn"
               onClick={() => handleAudioChoice(false)}
             >
-              <span className="global-btn-icon">🔇</span>
+              <span className="global-btn-icon"><VolumeX size={24} /></span>
               <span className="global-btn-text">Nay, Silence Please</span>
               <span className="global-btn-subtext">Quest in quiet</span>
             </button>

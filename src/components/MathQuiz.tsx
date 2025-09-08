@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { round } from "mathjs";
+import { userManager, type User } from "../utils/userManager";
+import UserNameModal from "./UserNameModal";
+import Leaderboard from "./Leaderboard";
 import "./MathQuiz.css";
 
 interface Question {
@@ -25,6 +28,16 @@ const MathQuiz: React.FC = () => {
   const [questionMode, setQuestionMode] = useState<'mixed' | 'arithmetic' | 'geometry'>('mixed');
   const [showCelebration, setShowCelebration] = useState(false);
   const [showWrongPopup, setShowWrongPopup] = useState(false);
+  const [showUserNameModal, setShowUserNameModal] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [xpGained, setXpGained] = useState(0);
+  const [showXpGain, setShowXpGain] = useState(false);
+
+  // Debug modal state changes
+  useEffect(() => {
+    console.log('showUserNameModal changed:', showUserNameModal);
+  }, [showUserNameModal]);
   
   // Audio refs
   const correctSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -165,7 +178,12 @@ const MathQuiz: React.FC = () => {
           dimensions = [base, height];
           correctAnswer = round((base * height) / 2, 1);
           questionText = `What is the area of this triangle?`;
-          svgPath = `M 50 20 L ${50 + base * 8} 20 L ${50 + (base * 8) / 2} ${20 + height * 8} Z`;
+          // Center the triangle in 240x120 viewBox (center at 120, 60)
+          const triangleWidth = base * 8;
+          const triangleHeight = height * 8;
+          const startX = 120 - triangleWidth / 2;
+          const startY = 60 - triangleHeight / 2;
+          svgPath = `M ${startX} ${startY} L ${startX + triangleWidth} ${startY} L ${startX + triangleWidth / 2} ${startY + triangleHeight} Z`;
         } else {
           const side1 = Math.floor(Math.random() * 8) + 4;
           const side2 = Math.floor(Math.random() * 8) + 4;
@@ -173,7 +191,8 @@ const MathQuiz: React.FC = () => {
           dimensions = [side1, side2, side3];
           correctAnswer = round(side1 + side2 + side3, 1);
           questionText = `What is the perimeter of this triangle?`;
-          svgPath = `M 50 80 L 120 20 L 180 80 Z`;
+          // Center the triangle in 240x120 viewBox (center at 120, 60)
+          svgPath = `M 85 85 L 120 25 L 155 85 Z`;
         }
         break;
         
@@ -190,14 +209,24 @@ const MathQuiz: React.FC = () => {
           questionText = `What is the perimeter of this rectangle?`;
         }
         
-        svgPath = `M 50 30 L ${50 + length * 8} 30 L ${50 + length * 8} ${30 + width * 8} L 50 ${30 + width * 8} Z`;
+        // Center the rectangle in 240x120 viewBox (center at 120, 60)
+        const rectWidth = length * 8;
+        const rectHeight = width * 8;
+        const startX = 120 - rectWidth / 2;
+        const startY = 60 - rectHeight / 2;
+        svgPath = `M ${startX} ${startY} L ${startX + rectWidth} ${startY} L ${startX + rectWidth} ${startY + rectHeight} L ${startX} ${startY + rectHeight} Z`;
         break;
         
       default:
         dimensions = [4, 3];
         correctAnswer = 12;
         questionText = "What is the area?";
-        svgPath = "M 50 30 L 82 30 L 82 54 L 50 54 Z";
+        // Center the default rectangle in 240x120 viewBox (center at 120, 60)
+        const defaultWidth = 4 * 8;
+        const defaultHeight = 3 * 8;
+        const defaultStartX = 120 - defaultWidth / 2;
+        const defaultStartY = 60 - defaultHeight / 2;
+        svgPath = `M ${defaultStartX} ${defaultStartY} L ${defaultStartX + defaultWidth} ${defaultStartY} L ${defaultStartX + defaultWidth} ${defaultStartY + defaultHeight} L ${defaultStartX} ${defaultStartY + defaultHeight} Z`;
     }
     
     // Generate wrong options
@@ -279,8 +308,18 @@ const MathQuiz: React.FC = () => {
     }
   }, []);
 
-  // Initialize with first question
+  // Initialize user and first question
   useEffect(() => {
+    const user = userManager.getCurrentUser();
+    console.log('Current user on init:', user);
+    if (user) {
+      setCurrentUser(user);
+      setScore(user.correctAnswers);
+      setQuestionsAnswered(user.totalQuestions);
+    } else {
+      console.log('No user found, showing name modal');
+      setShowUserNameModal(true);
+    }
     setCurrentQuestion(generateQuestion());
   }, []);
 
@@ -325,17 +364,33 @@ const MathQuiz: React.FC = () => {
   };
 
 
-  const handleAnswerClick = (optionIndex: number) => {
-    if (selectedAnswer !== null || !currentQuestion) return;
+  const handleAnswerClick = async (optionIndex: number) => {
+    if (selectedAnswer !== null || !currentQuestion || !currentUser) return;
     
     setSelectedAnswer(optionIndex);
     const correct = optionIndex === currentQuestion.correctAnswer;
     setShowResult(true);
     
+    // Calculate XP based on question type and difficulty
+    let xpEarned = 0;
     if (correct) {
+      if (currentQuestion.type === 'geometry') {
+        xpEarned = 15; // Geometry questions are worth more XP
+      } else {
+        xpEarned = 10; // Arithmetic questions
+      }
+      
       setScore(score + 1);
       setShowCelebration(true);
       playCorrectSound();
+      
+      // Show XP gain animation
+      setXpGained(xpEarned);
+      setShowXpGain(true);
+      setTimeout(() => {
+        setShowXpGain(false);
+      }, 2000);
+      
       // Hide celebration after 1.2 seconds
       setTimeout(() => {
         setShowCelebration(false);
@@ -350,6 +405,17 @@ const MathQuiz: React.FC = () => {
     }
     
     setQuestionsAnswered(questionsAnswered + 1);
+    
+    // Update user stats
+    try {
+      await userManager.updateUserStats(correct, xpEarned);
+      const updatedUser = userManager.getCurrentUser();
+      if (updatedUser) {
+        setCurrentUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Failed to update user stats:', error);
+    }
 
     // Auto-advance to next question after 1.5 seconds (optimized timing)
     setTimeout(() => {
@@ -359,7 +425,18 @@ const MathQuiz: React.FC = () => {
     }, 1500);
   };
 
-  const resetQuiz = () => {
+  const resetQuiz = async () => {
+    if (currentUser) {
+      try {
+        await userManager.resetUserData();
+        const updatedUser = userManager.getCurrentUser();
+        if (updatedUser) {
+          setCurrentUser(updatedUser);
+        }
+      } catch (error) {
+        console.error('Failed to reset user data:', error);
+      }
+    }
     setScore(0);
     setQuestionsAnswered(0);
     setSelectedAnswer(null);
@@ -367,6 +444,24 @@ const MathQuiz: React.FC = () => {
     setShowCelebration(false);
     setShowWrongPopup(false);
     setCurrentQuestion(generateQuestion());
+  };
+
+  const handleUserNameSubmit = async (name: string) => {
+    try {
+      const user = await userManager.createUser(name);
+      setCurrentUser(user);
+      setShowUserNameModal(false);
+    } catch (error) {
+      console.error('Failed to create user:', error);
+    }
+  };
+
+  const handleFlipToLeaderboard = () => {
+    setShowLeaderboard(true);
+  };
+
+  const handleFlipBackToQuiz = () => {
+    setShowLeaderboard(false);
   };
 
   const handleModeChange = (mode: 'mixed' | 'arithmetic' | 'geometry') => {
@@ -403,6 +498,19 @@ const MathQuiz: React.FC = () => {
           <div className="wrong-answer-display">
             Answer: {currentQuestion?.options[currentQuestion.correctAnswer]}
           </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Component for XP gain animation
+  const XpGainPopup: React.FC = () => {
+    return (
+      <div className={`xp-gain-popup ${showXpGain ? 'show' : ''}`}>
+        <div className="xp-gain-content">
+          <div className="xp-icon">✨</div>
+          <div className="xp-text">+{xpGained} XP</div>
+          <div className="xp-subtext">Great job!</div>
         </div>
       </div>
     );
@@ -460,10 +568,12 @@ const MathQuiz: React.FC = () => {
           {/* Add dimension labels for better clarity */}
           {type === 'rectangle' && (
             <>
-              <text x={50 + (dimensions[0] * 8) / 2} y={25} fill="#fdcb3f" fontSize="10" textAnchor="middle">
+              {/* Top label for length - centered horizontally above the rectangle */}
+              <text x={120} y={60 - (dimensions[1] * 8) / 2 - 5} fill="#fdcb3f" fontSize="10" textAnchor="middle">
                 {dimensions[0]}
               </text>
-              <text x={45} y={30 + (dimensions[1] * 8) / 2} fill="#fdcb3f" fontSize="10" textAnchor="middle">
+              {/* Left label for width - positioned to the left of the rectangle */}
+              <text x={120 - (dimensions[0] * 8) / 2 - 10} y={60} fill="#fdcb3f" fontSize="10" textAnchor="middle">
                 {dimensions[1]}
               </text>
             </>
@@ -478,38 +588,61 @@ const MathQuiz: React.FC = () => {
     return <div className="math-quiz loading">Loading...</div>;
   }
 
+  // Show leaderboard if toggled
+  if (showLeaderboard) {
+    return <Leaderboard onFlipBack={handleFlipBackToQuiz} />;
+  }
+
   return (
     <div className="math-quiz">
       <div className="quiz-header">
-        <h2 className="quiz-title">Math Quest Challenge</h2>
-        
-        <div className="question-mode-selector">
-          <button 
-            className={`mode-btn ${questionMode === 'mixed' ? 'active' : ''}`}
-            onClick={() => handleModeChange('mixed')}
-          >
-            Mixed
-          </button>
-          <button 
-            className={`mode-btn ${questionMode === 'arithmetic' ? 'active' : ''}`}
-            onClick={() => handleModeChange('arithmetic')}
-          >
-            Arithmetic
-          </button>
-          <button 
-            className={`mode-btn ${questionMode === 'geometry' ? 'active' : ''}`}
-            onClick={() => handleModeChange('geometry')}
-          >
-            Geometry
+        <div className="header-top">
+          <h2 className="quiz-title">Math Quest Challenge</h2>
+          <button className="leaderboard-toggle-btn" onClick={handleFlipToLeaderboard}>
+            🏆 Leaderboard
           </button>
         </div>
         
-        <div className="quiz-stats">
-          <span className="score">Score: {score}</span>
-          <span className="questions-count">Questions: {questionsAnswered}</span>
-          <span className="accuracy">
-            Accuracy: {questionsAnswered > 0 ? Math.round((score / questionsAnswered) * 100) : 0}%
-          </span>
+        <div className="stats-container">
+          <div className="player-info-row">
+            {currentUser && (
+              <>
+                <div className="user-name">Hero: {currentUser.name}</div>
+                <div className="user-xp">XP: {currentUser.xp}</div>
+              </>
+            )}
+          </div>
+          
+          <div className="mode-stats-row">
+            <div className="question-mode-selector">
+              <button 
+                className={`mode-btn ${questionMode === 'mixed' ? 'active' : ''}`}
+                onClick={() => handleModeChange('mixed')}
+              >
+                Mixed
+              </button>
+              <button 
+                className={`mode-btn ${questionMode === 'arithmetic' ? 'active' : ''}`}
+                onClick={() => handleModeChange('arithmetic')}
+              >
+                Arithmetic
+              </button>
+              <button 
+                className={`mode-btn ${questionMode === 'geometry' ? 'active' : ''}`}
+                onClick={() => handleModeChange('geometry')}
+              >
+                Geometry
+              </button>
+            </div>
+            
+            <div className="quiz-stats">
+              <span className="score">Score: {score}</span>
+              <span className="questions-count">Questions: {questionsAnswered}</span>
+              <span className="accuracy">
+                Accuracy: {questionsAnswered > 0 ? Math.round((score / questionsAnswered) * 100) : 0}%
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -559,12 +692,21 @@ const MathQuiz: React.FC = () => {
       
       {/* Wrong Answer Popup */}
       <WrongAnswerPopup />
+      
+      {/* XP Gain Popup */}
+      <XpGainPopup />
 
       <div className="quiz-footer">
         <button className="reset-button" onClick={resetQuiz}>
             Reset Quest
         </button>
       </div>
+      
+      {/* User Name Modal */}
+      <UserNameModal 
+        isOpen={showUserNameModal} 
+        onSubmit={handleUserNameSubmit} 
+      />
     </div>
   );
 };

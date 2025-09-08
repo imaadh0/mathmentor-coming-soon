@@ -102,7 +102,7 @@ const ComingSoonBackground: React.FC = () => {
       {/* Section 1: Coming Soon Header */}
       <section className="hero-section">
         <div className="torch-left">
-          <img src="/images/torch.png" alt="Left torch" />
+          <img src="/gifs/torch.gif" alt="Left torch" />
         </div>
         <div className="hero-content">
           <h1 className="coming-soon-title">COMING SOON !!</h1>
@@ -118,7 +118,7 @@ const ComingSoonBackground: React.FC = () => {
           </div>
         </div>
         <div className="torch-right">
-          <img src="/images/torch.png" alt="Right torch" />
+          <img src="/gifs/torch.gif" alt="Right torch" />
         </div>
       </section>
 
