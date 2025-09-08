@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useReducer,
+  useCallback,
+  useMemo,
+} from "react";
 import { round } from "mathjs";
 import { userManager, type User } from "../utils/userManager";
 import UserNameModal from "./UserNameModal";
@@ -19,6 +26,74 @@ interface Question {
   };
 }
 
+// Animation state management using useReducer for better performance
+interface AnimationState {
+  showCelebration: boolean;
+  showWrongPopup: boolean;
+  showXpGain: boolean;
+  xpGained: number;
+  xpPosition: { x: number; y: number };
+  xpAnimationKey: number;
+}
+
+type AnimationAction =
+  | { type: "SHOW_CELEBRATION" }
+  | { type: "HIDE_CELEBRATION" }
+  | { type: "SHOW_WRONG" }
+  | { type: "HIDE_WRONG" }
+  | {
+      type: "SHOW_XP";
+      payload: { xp: number; position: { x: number; y: number } };
+    }
+  | { type: "HIDE_XP" }
+  | { type: "RESET_ANIMATIONS" };
+
+const animationReducer = (
+  state: AnimationState,
+  action: AnimationAction
+): AnimationState => {
+  switch (action.type) {
+    case "SHOW_CELEBRATION":
+      return { ...state, showCelebration: true };
+    case "HIDE_CELEBRATION":
+      return { ...state, showCelebration: false };
+    case "SHOW_WRONG":
+      return { ...state, showWrongPopup: true };
+    case "HIDE_WRONG":
+      return { ...state, showWrongPopup: false };
+    case "SHOW_XP":
+      return {
+        ...state,
+        showXpGain: true,
+        xpGained: action.payload.xp,
+        xpPosition: action.payload.position,
+        xpAnimationKey: state.xpAnimationKey + 1,
+      };
+    case "HIDE_XP":
+      return { ...state, showXpGain: false };
+    case "RESET_ANIMATIONS":
+      return {
+        showCelebration: false,
+        showWrongPopup: false,
+        showXpGain: false,
+        xpGained: 0,
+        xpPosition: { x: 50, y: 50 },
+        xpAnimationKey: 0,
+      };
+    default:
+      return state;
+  }
+};
+
+const initialAnimationState: AnimationState = {
+  showCelebration: false,
+  showWrongPopup: false,
+  showXpGain: false,
+  xpGained: 0,
+  xpPosition: { x: 50, y: 50 },
+  xpAnimationKey: 0,
+};
+
 const MathQuiz: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [score, setScore] = useState(0);
@@ -33,9 +108,20 @@ const MathQuiz: React.FC = () => {
   const [showUserNameModal, setShowUserNameModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [xpGained, setXpGained] = useState(0);
-  const [showXpGain, setShowXpGain] = useState(false);
 
+  // Use reducer for animation state to prevent re-render cascades
+  const [animationState, dispatchAnimation] = useReducer(
+    animationReducer,
+    initialAnimationState
+  );
+
+  // Animation state management refs
+  const isProcessingAnswer = useRef(false);
+  const celebrationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const xpTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nextQuestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Note: Removed debug console.log to reduce console spam
   // Debug modal state changes
   useEffect(() => {
     console.log("showUserNameModal changed:", showUserNameModal);
@@ -351,6 +437,19 @@ const MathQuiz: React.FC = () => {
   // Update question when mode changes
   useEffect(() => {
     if (currentQuestion) {
+      // Clear any ongoing animations when mode changes
+      if (celebrationTimeoutRef.current)
+        clearTimeout(celebrationTimeoutRef.current);
+      if (xpTimeoutRef.current) clearTimeout(xpTimeoutRef.current);
+      if (nextQuestionTimeoutRef.current)
+        clearTimeout(nextQuestionTimeoutRef.current);
+
+      // Reset animation states efficiently
+      dispatchAnimation({ type: "RESET_ANIMATIONS" });
+      setShowResult(false);
+      setSelectedAnswer(null);
+      isProcessingAnswer.current = false;
+
       // Generate question based on current mode
       let questionType: "arithmetic" | "geometry";
 
@@ -376,6 +475,17 @@ const MathQuiz: React.FC = () => {
     }
   }, [questionMode]);
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (celebrationTimeoutRef.current)
+        clearTimeout(celebrationTimeoutRef.current);
+      if (xpTimeoutRef.current) clearTimeout(xpTimeoutRef.current);
+      if (nextQuestionTimeoutRef.current)
+        clearTimeout(nextQuestionTimeoutRef.current);
+    };
+  }, []);
+
   const playCorrectSound = () => {
     if (correctSoundRef.current) {
       correctSoundRef.current.currentTime = 0;
@@ -390,68 +500,118 @@ const MathQuiz: React.FC = () => {
     }
   };
 
-  const handleAnswerClick = async (optionIndex: number) => {
-    if (selectedAnswer !== null || !currentQuestion || !currentUser) return;
+  const handleAnswerClick = useCallback(
+    async (optionIndex: number) => {
+      // Prevent multiple answer processing
+      if (
+        selectedAnswer !== null ||
+        !currentQuestion ||
+        !currentUser ||
+        isProcessingAnswer.current
+      ) {
+        return;
+      }
 
-    setSelectedAnswer(optionIndex);
-    const correct = optionIndex === currentQuestion.correctAnswer;
-    setShowResult(true);
+      // Set processing flag to prevent multiple triggers
+      isProcessingAnswer.current = true;
 
-    // Calculate XP based on question type and difficulty
-    let xpEarned = 0;
-    if (correct) {
-      if (currentQuestion.type === "geometry") {
-        xpEarned = 15; // Geometry questions are worth more XP
+      // Clear any existing timeouts to prevent overlap
+      if (celebrationTimeoutRef.current)
+        clearTimeout(celebrationTimeoutRef.current);
+      if (xpTimeoutRef.current) clearTimeout(xpTimeoutRef.current);
+      if (nextQuestionTimeoutRef.current)
+        clearTimeout(nextQuestionTimeoutRef.current);
+
+      const correct = optionIndex === currentQuestion.correctAnswer;
+
+      // Calculate XP based on question type and difficulty
+      let xpEarned = 0;
+      if (correct) {
+        xpEarned = currentQuestion.type === "geometry" ? 15 : 10;
+      }
+
+      // Generate random position for XP popup
+      const safeMargin = 15;
+      const randomX = Math.random() * (100 - 2 * safeMargin) + safeMargin;
+      const randomY = Math.random() * (100 - 2 * safeMargin) + safeMargin;
+
+      // Single state update batch for immediate UI feedback
+      React.startTransition(() => {
+        setSelectedAnswer(optionIndex);
+        setShowResult(true);
+        setQuestionsAnswered((prev) => prev + 1);
+        if (correct) {
+          setScore((prev) => prev + 1);
+          dispatchAnimation({ type: "SHOW_CELEBRATION" });
+        } else {
+          dispatchAnimation({ type: "SHOW_WRONG" });
+        }
+      });
+
+      // Play sound effects
+      if (correct) {
+        playCorrectSound();
+
+        // Schedule animations with reducer dispatch
+        celebrationTimeoutRef.current = setTimeout(() => {
+          dispatchAnimation({ type: "HIDE_CELEBRATION" });
+        }, 1200);
+
+        xpTimeoutRef.current = setTimeout(() => {
+          dispatchAnimation({
+            type: "SHOW_XP",
+            payload: {
+              xp: xpEarned,
+              position: { x: randomX, y: randomY },
+            },
+          });
+
+          // Auto-hide XP after animation
+          setTimeout(() => {
+            dispatchAnimation({ type: "HIDE_XP" });
+          }, 2000);
+        }, 300);
       } else {
-        xpEarned = 10; // Arithmetic questions
+        playWrongSound();
+        setTimeout(() => {
+          dispatchAnimation({ type: "HIDE_WRONG" });
+        }, 1200);
       }
 
-      setScore(score + 1);
-      setShowCelebration(true);
-      playCorrectSound();
-
-      // Show XP gain animation
-      setXpGained(xpEarned);
-      setShowXpGain(true);
-      setTimeout(() => {
-        setShowXpGain(false);
-      }, 2000);
-
-      // Hide celebration after 1.2 seconds
-      setTimeout(() => {
-        setShowCelebration(false);
-      }, 1200);
-    } else {
-      setShowWrongPopup(true);
-      playWrongSound();
-      // Hide wrong popup after 1.2 seconds
-      setTimeout(() => {
-        setShowWrongPopup(false);
-      }, 1200);
-    }
-
-    setQuestionsAnswered(questionsAnswered + 1);
-
-    // Update user stats
-    try {
-      await userManager.updateUserStats(correct, xpEarned);
-      const updatedUser = userManager.getCurrentUser();
-      if (updatedUser) {
-        setCurrentUser(updatedUser);
+      // Update user stats asynchronously
+      try {
+        await userManager.updateUserStats(correct, xpEarned);
+        const updatedUser = userManager.getCurrentUser();
+        if (updatedUser) {
+          setCurrentUser(updatedUser);
+        }
+      } catch (error) {
+        console.error("Failed to update user stats:", error);
       }
-    } catch (error) {
-      console.error("Failed to update user stats:", error);
-    }
 
-    // Auto-advance to next question after 1.5 seconds (optimized timing)
-    setTimeout(() => {
-      setCurrentQuestion(generateQuestion());
-      setSelectedAnswer(null);
-      setShowResult(false);
-    }, 1500);
-  };
+      // Auto-advance to next question
+      nextQuestionTimeoutRef.current = setTimeout(() => {
+        setCurrentQuestion(generateQuestion());
+        setSelectedAnswer(null);
+        setShowResult(false);
+        dispatchAnimation({ type: "HIDE_XP" }); // Ensure XP is hidden
+        isProcessingAnswer.current = false; // Reset processing flag
+      }, 2500);
+    },
+    [selectedAnswer, currentQuestion, currentUser, score, questionsAnswered]
+  );
 
   const resetQuiz = async () => {
+    // Clear all timeouts to prevent animations after reset
+    if (celebrationTimeoutRef.current)
+      clearTimeout(celebrationTimeoutRef.current);
+    if (xpTimeoutRef.current) clearTimeout(xpTimeoutRef.current);
+    if (nextQuestionTimeoutRef.current)
+      clearTimeout(nextQuestionTimeoutRef.current);
+
+    // Reset processing flag
+    isProcessingAnswer.current = false;
+
     if (currentUser) {
       try {
         await userManager.resetUserData();
@@ -463,16 +623,19 @@ const MathQuiz: React.FC = () => {
         console.error("Failed to reset user data:", error);
       }
     }
-    setScore(0);
-    setQuestionsAnswered(0);
-    setSelectedAnswer(null);
-    setShowResult(false);
-    setShowCelebration(false);
-    setShowWrongPopup(false);
-    setCurrentQuestion(generateQuestion());
+
+    // Reset all state efficiently
+    React.startTransition(() => {
+      setScore(0);
+      setQuestionsAnswered(0);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      dispatchAnimation({ type: "RESET_ANIMATIONS" });
+      setCurrentQuestion(generateQuestion());
+    });
   };
 
-  const handleUserNameSubmit = async (name: string) => {
+  const handleUserNameSubmit = useCallback(async (name: string) => {
     try {
       const user = await userManager.createUser(name);
       setCurrentUser(user);
@@ -480,25 +643,32 @@ const MathQuiz: React.FC = () => {
     } catch (error) {
       console.error("Failed to create user:", error);
     }
-  };
+  }, []);
 
-  const handleFlipToLeaderboard = () => {
+  const handleFlipToLeaderboard = useCallback(() => {
     setShowLeaderboard(true);
-  };
+  }, []);
 
-  const handleFlipBackToQuiz = () => {
+  const handleFlipBackToQuiz = useCallback(() => {
     setShowLeaderboard(false);
-  };
+  }, []);
 
-  const handleModeChange = (mode: "mixed" | "arithmetic" | "geometry") => {
-    setQuestionMode(mode);
-    // The useEffect will handle generating a new question when mode changes
-  };
+  const handleModeChange = useCallback(
+    (mode: "mixed" | "arithmetic" | "geometry") => {
+      setQuestionMode(mode);
+      // The useEffect will handle generating a new question when mode changes
+    },
+    []
+  );
 
-  // Component for celebration popup
-  const CelebrationPopup: React.FC = () => {
-    return (
-      <div className={`celebration-popup ${showCelebration ? "show" : ""}`}>
+  // Memoized popup components to prevent unnecessary re-renders
+  const CelebrationPopup = useMemo(
+    () => (
+      <div
+        className={`celebration-popup ${
+          animationState.showCelebration ? "show" : ""
+        }`}
+      >
         <div className="celebration-content">
           <div className="celebration-icon">🎉</div>
           <div className="celebration-text">Correct!</div>
@@ -510,13 +680,15 @@ const MathQuiz: React.FC = () => {
           </div>
         </div>
       </div>
-    );
-  };
+    ),
+    [animationState.showCelebration]
+  );
 
-  // Component for wrong answer popup
-  const WrongAnswerPopup: React.FC = () => {
-    return (
-      <div className={`wrong-popup ${showWrongPopup ? "show" : ""}`}>
+  const WrongAnswerPopup = useMemo(
+    () => (
+      <div
+        className={`wrong-popup ${animationState.showWrongPopup ? "show" : ""}`}
+      >
         <div className="wrong-content">
           <div className="wrong-text">Not quite!</div>
           <div className="wrong-subtext">Keep going, you've got this!</div>
@@ -525,21 +697,37 @@ const MathQuiz: React.FC = () => {
           </div>
         </div>
       </div>
-    );
-  };
+    ),
+    [animationState.showWrongPopup, currentQuestion]
+  );
 
-  // Component for XP gain animation
-  const XpGainPopup: React.FC = () => {
+  // XP gain component with consistent state management
+  const XpGainPopup = useMemo(() => {
+    // Only render when showXpGain is true to prevent DOM clutter
+    if (!animationState.showXpGain) return null;
+
     return (
-      <div className={`xp-gain-popup ${showXpGain ? "show" : ""}`}>
+      <div
+        key={animationState.xpAnimationKey}
+        className={`xp-gain-popup ${animationState.showXpGain ? "active" : ""}`}
+        style={{
+          left: `${animationState.xpPosition.x}%`,
+          top: `${animationState.xpPosition.y}%`,
+        }}
+      >
         <div className="xp-gain-content">
           <div className="xp-icon">✨</div>
-          <div className="xp-text">+{xpGained} XP</div>
+          <div className="xp-text">+{animationState.xpGained} XP</div>
           <div className="xp-subtext">Great job!</div>
         </div>
       </div>
     );
-  };
+  }, [
+    animationState.showXpGain,
+    animationState.xpAnimationKey,
+    animationState.xpPosition,
+    animationState.xpGained,
+  ]);
 
   // Component for rendering geometry shapes
   const GeometryShape: React.FC<{ shape: NonNullable<Question["shape"]> }> = ({
@@ -762,14 +950,10 @@ const MathQuiz: React.FC = () => {
         </div>
       </div>
 
-      {/* Celebration Popup */}
-      <CelebrationPopup />
-
-      {/* Wrong Answer Popup */}
-      <WrongAnswerPopup />
-
-      {/* XP Gain Popup */}
-      <XpGainPopup />
+      {/* Optimized Popup Components */}
+      {CelebrationPopup}
+      {WrongAnswerPopup}
+      {XpGainPopup}
 
       <div className="quiz-footer">
         <button className="reset-button" onClick={resetQuiz}>
