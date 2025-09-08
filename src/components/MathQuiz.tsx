@@ -103,6 +103,8 @@ const MathQuiz: React.FC = () => {
   const [questionMode, setQuestionMode] = useState<
     "mixed" | "arithmetic" | "geometry"
   >("mixed");
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [showWrongPopup, setShowWrongPopup] = useState(false);
   const [showUserNameModal, setShowUserNameModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -120,6 +122,10 @@ const MathQuiz: React.FC = () => {
   const nextQuestionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Note: Removed debug console.log to reduce console spam
+  // Debug modal state changes
+  useEffect(() => {
+    console.log("showUserNameModal changed:", showUserNameModal);
+  }, [showUserNameModal]);
 
   // Audio refs
   const correctSoundRef = useRef<HTMLAudioElement | null>(null);
@@ -416,11 +422,13 @@ const MathQuiz: React.FC = () => {
   // Initialize user and first question
   useEffect(() => {
     const user = userManager.getCurrentUser();
+    console.log("Current user on init:", user);
     if (user) {
       setCurrentUser(user);
       setScore(user.correctAnswers);
       setQuestionsAnswered(user.totalQuestions);
     } else {
+      console.log("No user found, showing name modal");
       setShowUserNameModal(true);
     }
     setCurrentQuestion(generateQuestion());
