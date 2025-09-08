@@ -11,6 +11,7 @@ import { userManager, type User } from "../utils/userManager";
 import UserNameModal from "./UserNameModal";
 import Leaderboard from "./Leaderboard";
 import "./MathQuiz.css";
+import { TrophyIcon } from "lucide-react";
 
 interface Question {
   id: number;
@@ -103,8 +104,7 @@ const MathQuiz: React.FC = () => {
   const [questionMode, setQuestionMode] = useState<
     "mixed" | "arithmetic" | "geometry"
   >("mixed");
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [showWrongPopup, setShowWrongPopup] = useState(false);
+
   const [showUserNameModal, setShowUserNameModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -842,7 +842,7 @@ const MathQuiz: React.FC = () => {
             className="leaderboard-toggle-btn"
             onClick={handleFlipToLeaderboard}
           >
-            🏆 Leaderboard
+            <TrophyIcon /> Leaderboard
           </button>
         </div>
 
