@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Target, Sword, Trophy, BarChart3 } from "lucide-react";
 import "./UserNameModal.css";
 
 interface UserNameModalProps {
@@ -31,7 +32,9 @@ const UserNameModal: React.FC<UserNameModalProps> = ({ isOpen, onSubmit }) => {
       <div className="user-name-modal">
         <div className="modal-content">
           <div className="modal-header">
-            <div className="modal-icon">🎯</div>
+            <div className="modal-icon">
+              <Target size={32} />
+            </div>
             <h2 className="modal-title">Welcome, Hero!</h2>
             <p className="modal-subtitle">
               Enter your name to begin your math quest and track your progress
@@ -72,15 +75,21 @@ const UserNameModal: React.FC<UserNameModalProps> = ({ isOpen, onSubmit }) => {
           <div className="modal-footer">
             <div className="quest-info">
               <div className="info-item">
-                <span className="info-icon">⚔️</span>
+                <span className="info-icon">
+                  <Sword size={16} />
+                </span>
                 <span className="info-text">Earn XP for correct answers</span>
               </div>
               <div className="info-item">
-                <span className="info-icon">🏆</span>
+                <span className="info-icon">
+                  <Trophy size={16} />
+                </span>
                 <span className="info-text">Compete on the leaderboard</span>
               </div>
               <div className="info-item">
-                <span className="info-icon">📊</span>
+                <span className="info-icon">
+                  <BarChart3 size={16} />
+                </span>
                 <span className="info-text">Track your progress</span>
               </div>
             </div>
