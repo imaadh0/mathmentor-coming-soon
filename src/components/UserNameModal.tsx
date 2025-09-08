@@ -10,18 +10,16 @@ const UserNameModal: React.FC<UserNameModalProps> = ({ isOpen, onSubmit }) => {
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log('UserNameModal render - isOpen:', isOpen);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim().length < 2) return;
-    
+
     setIsSubmitting(true);
     onSubmit(name.trim());
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && name.trim().length >= 2) {
+    if (e.key === "Enter" && name.trim().length >= 2) {
       handleSubmit(e);
     }
   };
@@ -29,7 +27,7 @@ const UserNameModal: React.FC<UserNameModalProps> = ({ isOpen, onSubmit }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={`user-name-modal-overlay ${isOpen ? 'show' : ''}`}>
+    <div className={`user-name-modal-overlay ${isOpen ? "show" : ""}`}>
       <div className="user-name-modal">
         <div className="modal-content">
           <div className="modal-header">
@@ -57,9 +55,7 @@ const UserNameModal: React.FC<UserNameModalProps> = ({ isOpen, onSubmit }) => {
                 autoFocus
                 disabled={isSubmitting}
               />
-              <div className="input-hint">
-                {name.length}/20 characters
-              </div>
+              <div className="input-hint">{name.length}/20 characters</div>
             </div>
 
             <div className="modal-actions">
