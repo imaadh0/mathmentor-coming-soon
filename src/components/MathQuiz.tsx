@@ -569,7 +569,7 @@ const MathQuiz: React.FC = () => {
           // Auto-hide XP after animation
           setTimeout(() => {
             dispatchAnimation({ type: "HIDE_XP" });
-          }, 2000);
+          }, 1200);
         }, 300);
       } else {
         playWrongSound();
@@ -596,7 +596,7 @@ const MathQuiz: React.FC = () => {
         setShowResult(false);
         dispatchAnimation({ type: "HIDE_XP" }); // Ensure XP is hidden
         isProcessingAnswer.current = false; // Reset processing flag
-      }, 2500);
+      }, 1000);
     },
     [selectedAnswer, currentQuestion, currentUser, score, questionsAnswered]
   );

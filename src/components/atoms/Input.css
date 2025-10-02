@@ -1,0 +1,60 @@
+.input {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border: 2px solid var(--color-secondary);
+}
+
+/* Variants */
+.input--primary {
+  border-color: var(--color-primary);
+}
+
+.input--primary:focus {
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 2px rgba(253, 203, 63, 0.2);
+}
+
+.input--secondary {
+  border-color: var(--color-secondary);
+}
+
+.input--secondary:focus {
+  border-color: var(--color-text-muted);
+  box-shadow: 0 0 0 2px rgba(160, 160, 160, 0.2);
+}
+
+/* Sizes */
+.input--small {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.input--medium {
+  font-size: var(--font-size-base);
+}
+
+.input--large {
+  font-size: var(--font-size-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+/* States */
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input:focus {
+  outline: none;
+}

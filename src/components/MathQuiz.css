@@ -1125,7 +1125,7 @@
 
 /* Active state triggers animation */
 .xp-gain-popup.active {
-  animation: xpFloatUp 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: xpFloatUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .xp-gain-content {
@@ -1199,7 +1199,7 @@
 
 /* === KEYFRAME ANIMATIONS === */
 
-/* Main floating upward animation - 2s duration */
+/* Main floating upward animation - 1.2s duration */
 @keyframes xpFloatUp {
   0% {
     opacity: 0;
